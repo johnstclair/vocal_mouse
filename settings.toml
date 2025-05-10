@@ -1,0 +1,9 @@
+mode = "std"
+
+click_threshold = 60
+default_threshold = 5
+
+default_power = 5
+power_multiplier = 1.5 
+
+vol_multiplier = 2
