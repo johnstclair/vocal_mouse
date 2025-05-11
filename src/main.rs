@@ -28,8 +28,6 @@ fn main() -> Result<(), anyhow::Error> {
     let user_config: UserConfig = toml::from_str(&content)?;
     println!("{:#?}", user_config);
 
-    let mut enigo: Enigo = Enigo::new(&Settings::default()).unwrap();
-
     let host = cpal::default_host();
 
     #[cfg(any(not(any(
@@ -62,25 +60,25 @@ fn main() -> Result<(), anyhow::Error> {
     let stream = match config.sample_format() {
         cpal::SampleFormat::I8 => device.build_input_stream(
             &config.into(),
-            move |data, _: &_| detect_pitch::<i8>(data, &config_clone, &mut enigo, &user_config),
+            move |data, _: &_| detect_pitch::<i8>(data, &config_clone, &user_config),
             err_fn,
             None,
         )?,
         cpal::SampleFormat::I16 => device.build_input_stream(
             &config.into(),
-            move |data, _: &_| detect_pitch::<i16>(data, &config_clone, &mut enigo, &user_config),
+            move |data, _: &_| detect_pitch::<i16>(data, &config_clone, &user_config),
             err_fn,
             None,
         )?,
         cpal::SampleFormat::I32 => device.build_input_stream(
             &config.into(),
-            move |data, _: &_| detect_pitch::<i32>(data, &config_clone, &mut enigo, &user_config),
+            move |data, _: &_| detect_pitch::<i32>(data, &config_clone, &user_config),
             err_fn,
             None,
         )?,
         cpal::SampleFormat::F32 => device.build_input_stream(
             &config.into(),
-            move |data, _: &_| detect_pitch::<f32>(data, &config_clone, &mut enigo, &user_config),
+            move |data, _: &_| detect_pitch::<f32>(data, &config_clone, &user_config),
             err_fn,
             None,
         )?,
@@ -115,12 +113,12 @@ fn calculate_rms(data: &[f64]) -> f64 {
 fn detect_pitch<T>(
     input: &[T],
     config: &SupportedStreamConfig,
-    cursor: &mut Enigo,
     user_config: &UserConfig,
 ) where
     T: Sample + Into<f64>,
 {
     let device_state = DeviceState::new();
+    let mut cursor: Enigo = Enigo::new(&Settings::default()).unwrap();
 
     let input: Vec<f64> = input.iter().map(|v| (*v).into()).collect();
 
@@ -165,9 +163,9 @@ fn detect_pitch<T>(
                     break 'outer; // break to avoid moving mouse
                 }
                 match user_config.mode.as_str() {
-                    "std" => standard_mouse_behavior(note, cursor, power),
-                    "freq" => freq_mouse_behavior(note, cursor, power),
-                    "adv" => adv_mouse_behavior(note, cursor, power),
+                    "std" => standard_mouse_behavior(note, &mut cursor, power),
+                    "freq" => freq_mouse_behavior(note, &mut cursor, power),
+                    "adv" => adv_mouse_behavior(note, &mut cursor, power),
                     _ => {
                         println!("configured mode is not valid");
                         ()
@@ -176,8 +174,6 @@ fn detect_pitch<T>(
             }
         }
     }
-
-    drop(device_state)
 }
 
 fn standard_mouse_behavior(note: NoteDetectionResult, enigo: &mut Enigo, power: i32) {
