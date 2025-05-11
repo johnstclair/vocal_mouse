@@ -1,6 +1,6 @@
-mode = "std"
+mode = "std" # std adv freq
 
-click_threshold = 60
+click_threshold = 200
 default_threshold = 5
 
 default_power = 5

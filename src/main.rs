@@ -182,45 +182,45 @@ fn detect_pitch<T>(
 
 fn standard_mouse_behavior(note: NoteDetectionResult, enigo: &mut Enigo, power: i32) {
     let _ = match note.note_name {
-        NoteName::A => enigo.move_mouse(-power, 0, Coordinate::Rel), // left
-        NoteName::ASharp => enigo.move_mouse(-power, 0, Coordinate::Rel),
-        NoteName::B => enigo.move_mouse(-power, 0, Coordinate::Rel),
+        NoteName::A => enigo.move_mouse(power, 0, Coordinate::Rel), // right
+        NoteName::ASharp => enigo.move_mouse(power, 0, Coordinate::Rel),
+        NoteName::B => enigo.move_mouse(power, 0, Coordinate::Rel),
 
-        NoteName::C => enigo.move_mouse(0, -power, Coordinate::Rel), // up
-        NoteName::CSharp => enigo.move_mouse(0, -power, Coordinate::Rel),
-        NoteName::D => enigo.move_mouse(0, -power, Coordinate::Rel),
+        NoteName::C => enigo.move_mouse(0, power, Coordinate::Rel), // down
+        NoteName::CSharp => enigo.move_mouse(0, power, Coordinate::Rel),
+        NoteName::D => enigo.move_mouse(0, power, Coordinate::Rel),
 
-        NoteName::DSharp => enigo.move_mouse(power, 0, Coordinate::Rel), // right
-        NoteName::E => enigo.move_mouse(power, 0, Coordinate::Rel),
-        NoteName::F => enigo.move_mouse(power, 0, Coordinate::Rel),
+        NoteName::DSharp => enigo.move_mouse(-power, 0, Coordinate::Rel), // left
+        NoteName::E => enigo.move_mouse(-power, 0, Coordinate::Rel),
+        NoteName::F => enigo.move_mouse(-power, 0, Coordinate::Rel),
 
-        NoteName::FSharp => enigo.move_mouse(0, power, Coordinate::Rel), // down
-        NoteName::G => enigo.move_mouse(0, power, Coordinate::Rel),
-        NoteName::GSharp => enigo.move_mouse(0, power, Coordinate::Rel),
+        NoteName::G => enigo.move_mouse(0, -power, Coordinate::Rel), // up
+        NoteName::GSharp => enigo.move_mouse(0, -power, Coordinate::Rel),
+        NoteName::FSharp => enigo.move_mouse(0, -power, Coordinate::Rel),
     };
 }
 
 fn adv_mouse_behavior(note: NoteDetectionResult, enigo: &mut Enigo, power: i32) {
     let _ = match note.note_name {
-        NoteName::A => enigo.move_mouse(-power, 0, Coordinate::Rel), // left
-        NoteName::ASharp => enigo.move_mouse(-power, 0, Coordinate::Rel),
+        NoteName::A => enigo.move_mouse(power, 0, Coordinate::Rel), // right
+        NoteName::ASharp => enigo.move_mouse(power, 0, Coordinate::Rel),
 
-        NoteName::B => enigo.move_mouse(-power, -power, Coordinate::Rel), // left up
+        NoteName::B => enigo.move_mouse(power, power, Coordinate::Rel), // right down
 
-        NoteName::C => enigo.move_mouse(0, -power, Coordinate::Rel), // up
-        NoteName::CSharp => enigo.move_mouse(0, -power, Coordinate::Rel),
+        NoteName::C => enigo.move_mouse(0, power, Coordinate::Rel), // down
+        NoteName::CSharp => enigo.move_mouse(0, power, Coordinate::Rel),
 
-        NoteName::D => enigo.move_mouse(power, power, Coordinate::Rel), // up right
+        NoteName::D => enigo.move_mouse(-power, power, Coordinate::Rel), // down left
 
-        NoteName::DSharp => enigo.move_mouse(power, 0, Coordinate::Rel), // right
-        NoteName::E => enigo.move_mouse(power, 0, Coordinate::Rel),
+        NoteName::DSharp => enigo.move_mouse(-power, 0, Coordinate::Rel), // left
+        NoteName::E => enigo.move_mouse(-power, 0, Coordinate::Rel),
 
-        NoteName::F => enigo.move_mouse(power, power, Coordinate::Rel), // right down
+        NoteName::F => enigo.move_mouse(-power, 0, Coordinate::Rel), // left up
 
-        NoteName::FSharp => enigo.move_mouse(0, power, Coordinate::Rel), // down
-        NoteName::G => enigo.move_mouse(0, power, Coordinate::Rel),
+        NoteName::G => enigo.move_mouse(0, -power, Coordinate::Rel), // up
+        NoteName::GSharp => enigo.move_mouse(0, -power, Coordinate::Rel),
 
-        NoteName::GSharp => enigo.move_mouse(-power, power, Coordinate::Rel), // down left
+        NoteName::FSharp => enigo.move_mouse(power, -power, Coordinate::Rel), // up right
     };
 }
 
