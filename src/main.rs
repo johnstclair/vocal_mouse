@@ -1,11 +1,7 @@
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use cpal::{Sample, SupportedStreamConfig};
-use device_query::{DeviceQuery, DeviceState, Keycode, MouseState};
-use enigo::{
-    Button, Coordinate,
-    Direction::{Click, Press, Release},
-    Enigo, Key, Keyboard, Mouse, Settings,
-};
+use device_query::{DeviceQuery, DeviceState, Keycode};
+use enigo::{Button, Coordinate, Direction::Click, Enigo, Mouse, Settings};
 use pitch_detector::{
     core::NoteName,
     note::{NoteDetectionResult, detect_note},
@@ -100,8 +96,6 @@ fn main() -> Result<(), anyhow::Error> {
     loop {
         std::thread::sleep(std::time::Duration::from_secs(120));
     }
-
-    Ok(())
 }
 
 fn calculate_rms(data: &[f64]) -> f64 {
@@ -163,9 +157,9 @@ fn detect_pitch<T>(
                 if vol > user_config.click_threshold {
                     // check if the vol enough to click
                     if note.octave > 4 {
-                        cursor.button(Button::Right, Click);
+                        let _ = cursor.button(Button::Right, Click);
                     } else {
-                        cursor.button(Button::Left, Click);
+                        let _ = cursor.button(Button::Left, Click);
                     }
                     std::thread::sleep(std::time::Duration::from_millis(500));
                     break 'outer; // break to avoid moving mouse
@@ -173,6 +167,7 @@ fn detect_pitch<T>(
                 match user_config.mode.as_str() {
                     "std" => standard_mouse_behavior(note, cursor, power),
                     "freq" => freq_mouse_behavior(note, cursor, power),
+                    "adv" => adv_mouse_behavior(note, cursor, power),
                     _ => {
                         println!("configured mode is not valid");
                         ()
@@ -187,21 +182,45 @@ fn detect_pitch<T>(
 
 fn standard_mouse_behavior(note: NoteDetectionResult, enigo: &mut Enigo, power: i32) {
     let _ = match note.note_name {
-        NoteName::A => enigo.move_mouse(0, power, Coordinate::Rel), // down }
-        NoteName::ASharp => enigo.move_mouse(0, power, Coordinate::Rel),
-        NoteName::B => enigo.move_mouse(0, power, Coordinate::Rel),
+        NoteName::A => enigo.move_mouse(-power, 0, Coordinate::Rel), // left
+        NoteName::ASharp => enigo.move_mouse(-power, 0, Coordinate::Rel),
+        NoteName::B => enigo.move_mouse(-power, 0, Coordinate::Rel),
 
-        NoteName::C => enigo.move_mouse(-1 * power, 0, Coordinate::Rel), // left
-        NoteName::CSharp => enigo.move_mouse(-1 * power, 0, Coordinate::Rel),
-        NoteName::D => enigo.move_mouse(-1 * power, 0, Coordinate::Rel),
+        NoteName::C => enigo.move_mouse(0, -power, Coordinate::Rel), // up
+        NoteName::CSharp => enigo.move_mouse(0, -power, Coordinate::Rel),
+        NoteName::D => enigo.move_mouse(0, -power, Coordinate::Rel),
 
         NoteName::DSharp => enigo.move_mouse(power, 0, Coordinate::Rel), // right
         NoteName::E => enigo.move_mouse(power, 0, Coordinate::Rel),
         NoteName::F => enigo.move_mouse(power, 0, Coordinate::Rel),
 
-        NoteName::FSharp => enigo.move_mouse(0, -1 * power, Coordinate::Rel), // up
-        NoteName::G => enigo.move_mouse(0, -1 * power, Coordinate::Rel),
-        NoteName::GSharp => enigo.move_mouse(0, -1 * power, Coordinate::Rel),
+        NoteName::FSharp => enigo.move_mouse(0, power, Coordinate::Rel), // down
+        NoteName::G => enigo.move_mouse(0, power, Coordinate::Rel),
+        NoteName::GSharp => enigo.move_mouse(0, power, Coordinate::Rel),
+    };
+}
+
+fn adv_mouse_behavior(note: NoteDetectionResult, enigo: &mut Enigo, power: i32) {
+    let _ = match note.note_name {
+        NoteName::A => enigo.move_mouse(-power, 0, Coordinate::Rel), // left
+        NoteName::ASharp => enigo.move_mouse(-power, 0, Coordinate::Rel),
+
+        NoteName::B => enigo.move_mouse(-power, -power, Coordinate::Rel), // left up
+
+        NoteName::C => enigo.move_mouse(0, -power, Coordinate::Rel), // up
+        NoteName::CSharp => enigo.move_mouse(0, -power, Coordinate::Rel),
+
+        NoteName::D => enigo.move_mouse(power, power, Coordinate::Rel), // up right
+
+        NoteName::DSharp => enigo.move_mouse(power, 0, Coordinate::Rel), // right
+        NoteName::E => enigo.move_mouse(power, 0, Coordinate::Rel),
+
+        NoteName::F => enigo.move_mouse(power, power, Coordinate::Rel), // right down
+
+        NoteName::FSharp => enigo.move_mouse(0, power, Coordinate::Rel), // down
+        NoteName::G => enigo.move_mouse(0, power, Coordinate::Rel),
+
+        NoteName::GSharp => enigo.move_mouse(-power, power, Coordinate::Rel), // down left
     };
 }
 
@@ -209,9 +228,9 @@ fn freq_mouse_behavior(note: NoteDetectionResult, enigo: &mut Enigo, power: i32)
     let _ = match note.actual_freq {
         // default move behavior
         0.0..230.0 => enigo.move_mouse(0, power, Coordinate::Rel), // up
-        230.0..310.0 => enigo.move_mouse(power * -1, 0, Coordinate::Rel), // left
+        230.0..310.0 => enigo.move_mouse(-power, 0, Coordinate::Rel), // left
         310.0..400.0 => enigo.move_mouse(power, 0, Coordinate::Rel), // right
-        400.0..1000.0 => enigo.move_mouse(0, -1 * power, Coordinate::Rel), // down
+        400.0..1000.0 => enigo.move_mouse(0, -power, Coordinate::Rel), // down
         _ => Ok(()),
     };
 }
