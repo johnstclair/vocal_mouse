@@ -24,7 +24,8 @@ struct UserConfig {
 }
 
 fn main() -> Result<(), anyhow::Error> {
-    let content = fs::read_to_string("settings.toml")?;
+    // get the user configuration
+    let content = fs::read_to_string("~/.config/vocal_mouse/settings.toml")?;
     let user_config: UserConfig = toml::from_str(&content)?;
     println!("{:#?}", user_config);
 
@@ -49,9 +50,6 @@ fn main() -> Result<(), anyhow::Error> {
     println!("Default input config: {:?}", config);
 
     let config_clone = config.clone();
-
-    // A flag to indicate that recording is in progress.
-    println!("Begin recording...");
 
     let err_fn = move |err| {
         eprintln!("an error occurred on stream: {}", err);
@@ -96,6 +94,7 @@ fn main() -> Result<(), anyhow::Error> {
     }
 }
 
+// calculates the volume of the input
 fn calculate_rms(data: &[f64]) -> f64 {
     if data.is_empty() {
         return 0.0;
@@ -125,6 +124,7 @@ fn detect_pitch<T>(
     let mut detector = HannedFftDetector::default();
 
     let error_free_note = catch_unwind(AssertUnwindSafe(|| {
+        // ignores if the pitch detector panics
         detect_note(&input, &mut detector, config.sample_rate().0 as f64)
     }))
     .ok()
@@ -140,6 +140,7 @@ fn detect_pitch<T>(
                     + user_config.default_power;
 
                 if device_state.get_keys().contains(&Keycode::LShift) {
+                    // modifier keys
                     power *= 2;
                 } else if device_state.get_keys().contains(&Keycode::LControl) {
                     power /= 2;
@@ -222,7 +223,6 @@ fn adv_mouse_behavior(note: NoteDetectionResult, enigo: &mut Enigo, power: i32) 
 
 fn freq_mouse_behavior(note: NoteDetectionResult, enigo: &mut Enigo, power: i32) {
     let _ = match note.actual_freq {
-        // default move behavior
         0.0..230.0 => enigo.move_mouse(0, power, Coordinate::Rel), // up
         230.0..310.0 => enigo.move_mouse(-power, 0, Coordinate::Rel), // left
         310.0..400.0 => enigo.move_mouse(power, 0, Coordinate::Rel), // right
