@@ -8,8 +8,8 @@ use pitch_detector::{
     pitch::HannedFftDetector,
 };
 use serde::Deserialize;
-use std::fs;
 use std::panic::{AssertUnwindSafe, catch_unwind};
+use std::{env, fs, path::PathBuf};
 
 #[derive(Debug, Deserialize)]
 struct UserConfig {
@@ -25,7 +25,15 @@ struct UserConfig {
 
 fn main() -> Result<(), anyhow::Error> {
     // get the user configuration
-    let content = fs::read_to_string("~/.config/vocal_mouse/settings.toml")?;
+    let home_dir = match env::var("HOME").or_else(|_| env::var("USERPROFILE")) {
+        Ok(path) => PathBuf::from(path),
+        Err(_) => {
+            eprintln!("could not determine home directory");
+            return Ok(());
+        }
+    };
+    let settings_path = home_dir.join(".config/vocal_mouse/settings.toml");
+    let content = fs::read_to_string(&settings_path)?;
     let user_config: UserConfig = toml::from_str(&content)?;
     println!("{:#?}", user_config);
 
@@ -109,11 +117,8 @@ fn calculate_rms(data: &[f64]) -> f64 {
     mean_square.sqrt() * 1300.0
 }
 
-fn detect_pitch<T>(
-    input: &[T],
-    config: &SupportedStreamConfig,
-    user_config: &UserConfig,
-) where
+fn detect_pitch<T>(input: &[T], config: &SupportedStreamConfig, user_config: &UserConfig)
+where
     T: Sample + Into<f64>,
 {
     let device_state = DeviceState::new();
@@ -191,9 +196,9 @@ fn standard_mouse_behavior(note: NoteDetectionResult, enigo: &mut Enigo, power: 
         NoteName::E => enigo.move_mouse(-power, 0, Coordinate::Rel),
         NoteName::F => enigo.move_mouse(-power, 0, Coordinate::Rel),
 
-        NoteName::G => enigo.move_mouse(0, -power, Coordinate::Rel), // up
+        NoteName::FSharp => enigo.move_mouse(0, -power, Coordinate::Rel), // up
+        NoteName::G => enigo.move_mouse(0, -power, Coordinate::Rel),
         NoteName::GSharp => enigo.move_mouse(0, -power, Coordinate::Rel),
-        NoteName::FSharp => enigo.move_mouse(0, -power, Coordinate::Rel),
     };
 }
 
@@ -214,19 +219,19 @@ fn adv_mouse_behavior(note: NoteDetectionResult, enigo: &mut Enigo, power: i32) 
 
         NoteName::F => enigo.move_mouse(-power, 0, Coordinate::Rel), // left up
 
-        NoteName::G => enigo.move_mouse(0, -power, Coordinate::Rel), // up
-        NoteName::GSharp => enigo.move_mouse(0, -power, Coordinate::Rel),
+        NoteName::FSharp => enigo.move_mouse(0, -power, Coordinate::Rel), // up
+        NoteName::G => enigo.move_mouse(0, -power, Coordinate::Rel),
 
-        NoteName::FSharp => enigo.move_mouse(power, -power, Coordinate::Rel), // up right
+        NoteName::GSharp => enigo.move_mouse(power, -power, Coordinate::Rel), // up right
     };
 }
 
 fn freq_mouse_behavior(note: NoteDetectionResult, enigo: &mut Enigo, power: i32) {
     let _ = match note.actual_freq {
-        0.0..230.0 => enigo.move_mouse(0, power, Coordinate::Rel), // up
-        230.0..310.0 => enigo.move_mouse(-power, 0, Coordinate::Rel), // left
-        310.0..400.0 => enigo.move_mouse(power, 0, Coordinate::Rel), // right
-        400.0..1000.0 => enigo.move_mouse(0, -power, Coordinate::Rel), // down
+        0.0..230.0 => enigo.move_mouse(power, 0, Coordinate::Rel), // right
+        230.0..310.0 => enigo.move_mouse(0, power, Coordinate::Rel), // down
+        310.0..400.0 => enigo.move_mouse(-power, 0, Coordinate::Rel), // left
+        400.0..1000.0 => enigo.move_mouse(0, -power, Coordinate::Rel), // up
         _ => Ok(()),
     };
 }

@@ -1,9 +1,10 @@
-mode = "std" # std adv freq
+mode = "std" # modes are: std adv freq
+             # the modes are explained in the README
 
-click_threshold = 200
-default_threshold = 5
+click_threshold = 200 # the volume threshold to click the mouse
+default_threshold = 5 # the volume threshold for the program to process the input
 
-default_power = 5
-power_multiplier = 1.5 
+default_power = 5      # default amount of pixels the mouse will move
+power_multiplier = 1.5 # the modifier applied to the power number, power is used to detirmine how many pixels to move and is based off of volume + default_power
 
-vol_multiplier = 1
+vol_multiplier = 1 # multiplier applied to the volume of the input
