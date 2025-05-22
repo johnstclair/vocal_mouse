@@ -76,3 +76,6 @@ I don't know why I made this...
 | 230-310 | down |
 | 310-400 | left |
 | 400-1000 | up |
+
+> [!NOTE]
+> If you have issues, which will likely occur on Windows, please open an issue.
