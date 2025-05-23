@@ -3,6 +3,8 @@ A program to control your mouse with your vocals.
 
 This is a pretty simple Rust CLI I wrote which listens to your microphone and moves the mouse based off the notes detected.
 
+![Icon](./vocal_mouse_icon.png)
+
 ## How to Run
 
 If you're using nix, then simply run `nix develop` to setup the dev environment. Honestly, just setup nix and do this.
