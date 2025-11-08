@@ -21,7 +21,7 @@ If you want to, you could even build the project and move it to your bin directo
 
 Again, to run the project after settings everything up, use `cargo run`. 
 
-First, setup the settings file, all of the settings are commented in the file.
+First, setup the settings file, all of the settings are explained in the file, and below.
 
 The power settings relate to how many pixels the mouse will move on each input.
 
@@ -35,16 +35,11 @@ There are different modes. All selectable in the settings file.
 
 An input above the click_threshold volume will trigger a mouse button press. 
 
-If the input is from any octave 1-4, then the action will be a left click.
-```
-else {
-    action = not a left click // right click
-}
-```
+If the input is from any octave 1-4, then the action will be a left click. Elif the input is from any octave 5-8, then the action will be a right click.
 
 ### Standard (std)
 
-For the normies
+Actually useful.
 
 | Note | Mouse Direction |
 | ---- | --------------- |
